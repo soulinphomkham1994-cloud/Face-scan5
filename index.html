@@ -536,25 +536,28 @@ function checkLocation() {
     return;
   }
   navigator.geolocation.watchPosition(pos => {
-    // เก็บ readings ล่าสุด 5 ครั้ง แล้ว average เพื่อลด GPS jitter
     gpsReadings.push({ lat: pos.coords.latitude, lng: pos.coords.longitude });
     if (gpsReadings.length > 5) gpsReadings.shift();
 
     userLat = gpsReadings.reduce((s, r) => s + r.lat, 0) / gpsReadings.length;
     userLng = gpsReadings.reduce((s, r) => s + r.lng, 0) / gpsReadings.length;
 
-    const dist = getDistance(userLat, userLng, CONFIG.ALLOWED_LOCATION.lat, CONFIG.ALLOWED_LOCATION.lng);
+    const dist      = getDistance(userLat, userLng, CONFIG.ALLOWED_LOCATION.lat, CONFIG.ALLOWED_LOCATION.lng);
+    const gpsAccuracy = pos.coords.accuracy || 100;
 
-    // ບວກ GPS accuracy ຂອງອຸປະກອນ (cap 60ມ) ເຂົ້າໄປໃນ radius
-    // ເພາະ GPS ໂທລະສັບທົ່ວໄປ ຜິດພາດໄດ້ 20-80ມ
-    const gpsError  = Math.min(pos.coords.accuracy || 50, 60);
+    // Indoor GPS ຜິດໄດ້ 100-200ມ — cap ທີ່ 120ມ ໃຫ້ພໍໃຊ້ໄດ້ທຸກສະຖານທີ່
+    const gpsError        = Math.min(gpsAccuracy, 120);
     const effectiveRadius = CONFIG.ALLOWED_LOCATION.radius + gpsError;
 
     locationOk = dist <= effectiveRadius;
-    if (locationOk) {
-      setStatus('loc', 'ok', `ໃນໂຊນ (${Math.round(dist)}ມ ±${Math.round(gpsError)}ມ)`);
-    } else {
+
+    if (!locationOk) {
       setStatus('loc', 'error', `ນອກໂຊນ (${Math.round(dist)}ມ)`);
+    } else if (gpsAccuracy > 80) {
+      // ຢູ່ໃນໂຊນ ແຕ່ GPS ຍັງບໍ່ໝັ້ນຄົງ — ອ​ນຸ​ຍາດ ແຕ່ແຈ້ງໃຫ້ຮູ້
+      setStatus('loc', 'warn', `GPS ບໍ່ໝັ້ນຄົງ (±${Math.round(gpsAccuracy)}ມ) ສະແກນໄດ້`);
+    } else {
+      setStatus('loc', 'ok', `ໃນໂຊນ (${Math.round(dist)}ມ ±${Math.round(gpsAccuracy)}ມ)`);
     }
   }, () => {
     setStatus('loc', 'error', 'ບໍ່ສາມາດລະບຸ GPS');
