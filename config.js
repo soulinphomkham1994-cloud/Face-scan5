@@ -5,7 +5,7 @@
 
 const CONFIG = {
   // URL ຂອງ Google Apps Script Web App (ໃສ່ຫຼັງ Deploy)
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxfNi57WUVBSJqu1jgWuRJkrO974ClziWCv1MlKhPSeFvV5-5TITkuVnC-bF4PuGuo/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby7Gh36Y66oJHAa4LVhhfYLVry7Krc9kSlJWXiTD47kvYCcC25BJEa9tyVQk9Rx_AHv/exec',
 
   // ຕຳແໜ່ງທີ່ອ​ນຸ​ຍາດ (ທີ່ຕັ້ງຫ້ອງການ)
   ALLOWED_LOCATION: {
